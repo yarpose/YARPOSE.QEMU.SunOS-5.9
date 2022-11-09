@@ -1,94 +1,96 @@
-# Revitalizing Public-Domain Version of Micromagic
+# Revitalizing an EDA platform for SPARC native binary codes
 
 By [M. B. Ghaznavi-Ghoushchi](https://github.com/ghoushchi).
 
-This is a try to revitalize public-domain version of [Micromagic: mmi_pd](https://sourceforge.net/projects/mmi-pd/) to run in recent 64-bit linux Ubuntu 20.04.4 LTS.
+This is a try to revitalize an EDA platform for SPARC binary codes. This is done via a dynamic link emulation execution via [QMEU](https://www.qemu.org/) instead of conventional virtualizations alike vmware and virtualbox. This helps you directly run ALL SunOS and SPARC binary files directly spanning support up to SunOS 5.9.
 
 # Introduction
-**Micromagic** tool suite is a full IC CAD tool, documentation, scripts, and libraries for designing
-high-performance ICs, including SUE for schematics, MAX for
-layouts, DPC for datapaths and MCC for megacells.
+While we are facing with very fine tools and OS support for modern EDA Tools, it is strange to think about revitalizing an EDA platform for SPARC native binary codes which in some sense it belongs to the history rather than the front-line of progress at first glance. But it may be interested if the EDA folks look into a facts list:
 
-## 1. Be sure on your Linux distribution
-```console
-caduser@ubuntu:~$ lsb_release -d
-Description:	Ubuntu 20.04.4 LTS
-caduser@ubuntu:~$ 
-```
+* There were many great EDA tools for SPARC machines now are out of access to run. But they are source of inspiration for new generations of EDA programmers. Having a ready-to-run platform for such tools not only acts as a golden model running beside of current tools, but also their available source will be used with bundled ready-to-test binary files.
+* There are still some sort of EDA Tools for example some set of Memory compilers are solely ported for SPARC stations and they are still in demand for example in node technologies like 180nm and 130nm.
 
-## 2. Required settings and installations 
-### 2.1 Steps to set your machine to support 32-bit over 64-bit (for Micromagic)
-```bash
-sudo dpkg --add-architecture i386
-sudo apt-get update
-sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
-sudo apt-get install multiarch-support
-sudo apt-get install libx11-6:i386
-sudo apt-get install libc6-i386
-sudo apt-get install binutils:i386
-sudo apt-get install zsh
-sudo apt-get install csh
-```
-### 2.2 Installing fonts for max/nst 
-```bash
-sudo apt-get install xfsprogs xfstt
-sudo apt-get install t1-xfree86-nonfree
-sudo apt-get install ttf-xfree86-nonfree
-sudo apt-get install ttf-xfree86-nonfree-syriac
-sudo apt-get install xfonts-75dpi
-sudo apt-get install xfonts-100dpi
-xset +fp /usr/share/fonts/X11/75dpi/
-xset +fp /usr/share/fonts/X11/100dpi/
-```
+Among the tools for SPARC here some of them are mentioned:
+* [Power Optimization and Synthesis Environment](https://mpedram.com/~pose/) 
+* [Sycraft (SYmboliC synthesizeR and Adder of Fault-Tolerance)](http://www.cse.msu.edu/~sandeep/sycraft/)
+* [IC CAD Micro Magic](https://sourceforge.net/projects/mmi-pd/support)
+* A lots!: A simple search [click here to see](https://www.google.com/search?q=(site%3Aedu+OR+inurl%3A.edu+OR+inurl%3A.ac)+(CAD+OR+vlsi+OR+CMOS)+(solaris+OR+sparc+OR+sunos)+(.tar.Z+OR+.gz+OR+.tar+OR+tar.gz)) in Google with terms ```  (site:edu OR inurl:.edu OR inurl:.ac) (CAD OR vlsi OR CMOS) (solaris OR sparc OR sunos) (.tar.Z OR .gz OR .tar OR tar.gz)  ``` unveils a huge collection of academic tools and programs in this area still ready to access, download and use in anyway.
 
-### 2.3 Installing xterm for cross-probe between max and sue
+## 1. Download required tools
+1. QEMU for target host machine from [QEMU download section](https://www.qemu.org/download/). This is the main emulation program for our task. Installation has no problem at all.
+2. Miniweb from [here](https://github.com/avih/miniweb) or [here](https://sourceforge.net/projects/miniweb/). This is very important for file transfer between host/guest environments. 
+3. Main DVD of Solaris 9 solaris-2.9-sparc.iso from [here](http://www.w6rz.net/solaris-2.9-sparc.iso).
+
+
+## 2. Steps for settings up and installations 
+### 2.1 Pre-installation step
+
+1. Install QEMU normally.
+2.  Then create a folder with available size of about 10-40GB storage free for example ```QEMU.SunOS-5.9```. 
+3. Create a subfolder for example ```QEMU.shared``` inside of above folder. So, you will have  ```QEMU.SunOS-5.9/QEMU.shared```.
+3. To install ```miniweb```, simply copy the file ```miniweb(.exe)``` and the folder ```htdocs``` to ```QEMU.SunOS-5.9/QEMU.shared``` folder. From now by running this light web server, you have access to the contents of ```htdocs``` for upload or download via the guest machine. 
+
+
+### 2.2 Creating the guest image file
+Create the SPARC image file with size allocation:
 ```bash
-sudo apt-get install xterm
+qemu-img create -f qcow2 sparc.qcow2 36G
 ```
-## 3. Install Micromagic public-domian 
-### 3.1 Download the program and do the following steps
+Prepare the actual disk for SPARC. This will take a while and during it you must provide required information for exampleL language, time setting, user login information, etc. Please be paitent and do with care:
 
 ```bash
-cd ~
-mkdir cad
-cd cad
-wget https://sourceforge.net/projects/mmi-pd/files/mmi-pd/mmi_pd_040526/mmi_pd_040526.tar.gz
-gzip -dc mmi_pd_040526.tar.gz | tar xvf -
-ln -s mmi_pd_040526 mmi_pd
-cd mmi_pd
-ln -s bin.i486-linux bin
-cp -r mmi_local.sample ../mmi_local
+qemu-system-sparc -L . -M SS-20 -m 256  -drive file=sparc.qcow2,bus=0,unit=0,media=disk -drive file=solaris-2.9-sparc.iso,bus=0,unit=2,media=cdrom,readonly=on
 ```
-### 3.2 In /etc/bash.bashrc append the following lines. Please change YourUserName to your own
-```shellscript
-export MMI_TOOLS=/home/YourUserName/cad/mmi_pd
-export MMI_BROWSER=firefox
-export PATH=$PATH:$MMI_TOOLS/bin
-```
-## 4. Now test the program
+In the above command and process we have two important file names: ``` solaris-2.9-sparc.iso``` which is the DVD of Operating system and ```sparc.qcow2``` which is the target image file. After successful completion of above command **DO NOT TRY IT AGAIN**, since it will overwrite the main file ```sparc.qcow2``` and all the done process with be wiped-out.
+
+Now we have a working SunOS 5.9 (Solaris 2.9) with native binary code running capability.
+
+To run and invoke the system run this command.
 ```bash
-sue
-max
-nst
+qemu-system-sparc -M SS-20 -m 256 -drive file=sparc.qcow2,bus=0,unit=0,media=disk
 ```
-![AIO](media/mmi_pd_AIO.png)
+![Startup](media/startup.png)
+![Login](media/login.1.png)
+![Login](media/login.2.png)
+![Screen](media/screen.1.png)
+![Screen](media/screen.2.png)
+![Screen](media/screen.3.png)
+![Screen](media/screen.4.png)
 
-Note: If you see problems in max/nst due to fonts (with un-readable fonts or extra font sizes), you must recheck the fonts installation step again with care.
+### 2.3 Transfer files between host (your main machine) and guest (SPARC)
+First start ``` miniweb ```
+
+Then you will see a window like this:
+![Miniweb](media/miniweb.png)
+As it is seen the miniweb starts with a specified IP address for example ``` 192.168.1.117``` and port 8000. Please forget it!. From inside of the SPARC machine you will look for address ```10.0.2.2:8000 ``` in the Netscape browser and now you have accessed the host machine from inside of guest SPARC.
+![browser.1](media/browser.1.png)
+![browser.2](media/browser.2.png)
+
+#### 2.3.1 How to send files to SPARC machine:
+Simply copy to ```htdocs``` anything you want to transfer to SPARC machine and then start browser and open ```http://10.0.2.2:8000/``` and download the program INSIDE of SPARC.
+![download.1](media/download.1.png)
+
+#### 2.3.2 How to send files from SPARC machine to host machine:
+Simply open ```http://10.0.2.2:8000/``` inside the SPARC machine and click on ```upload.html``` link and upload the anything you want to.
+
+![upload.1](media/upload.1.png)
+![upload.2](media/upload.2.png)
+
+### 2.4 Sample run screenshots
+
+![terminal.1](media/terminal.1.png)
+![terminal.2](media/terminal.2.png)
+
+![micromagic.1](media/micromagic.1.png)
+![micromagic.2](media/micromagic.2.png)
+
+![pose.1](media/pose.1.png)
 
 
-![AIO](media/out.gif)
 
-
-
-### You will see more about focused usage of this tool with examples... very soon.
-### A 2X4 Decoder in micromagic
-![DECODER2x4](media/2x4-decoder.gif)
-### Example 1: A 2X4 Decoder in micromagic with very details and steps from my VLSI 2006 PPT #22 ![VLSI-SHD-22](https://github.com/yarpose/YARPOSE.Micromagic_PD/blob/master/media/VLSI-SHD-22.ppt)
-
-![DECODER2x4-AIO](media/VLSI-SHD-22.gif)
 
 ### Credits:
-The mmi_pd tool suite is a public-domain version  of [Micromagic](https://www.micromagic.com). All the credits are belong to its originators.
+All the credits are belong to their originators.
 
 # Related Projects
 Please follow us to be informed about related projects:
