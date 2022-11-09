@@ -57,7 +57,7 @@ qemu-system-sparc -M SS-20 -m 256 -drive file=sparc.qcow2,bus=0,unit=0,media=dis
 ![Screen](media/screen.3.png)
 ![Screen](media/screen.4.png)
 
-### 2.3 Transfer files between host (your main machine) and guest (SPARC)
+## 3. Transfer files between host (your main machine) and guest (SPARC)
 First start ``` miniweb ```
 
 Then you will see a window like this:
@@ -66,17 +66,17 @@ As it is seen the miniweb starts with a specified IP address for example ``` 192
 ![browser.1](media/browser.1.png)
 ![browser.2](media/browser.2.png)
 
-#### 2.3.1 How to send files to SPARC machine:
+### 3.1 How to send files to SPARC machine:
 Simply copy to ```htdocs``` anything you want to transfer to SPARC machine and then start browser and open ```http://10.0.2.2:8000/``` and download the program INSIDE of SPARC.
 ![download.1](media/download.1.png)
 
-#### 2.3.2 How to send files from SPARC machine to host machine:
+### 3.2 How to send files from SPARC machine to host machine:
 Simply open ```http://10.0.2.2:8000/``` inside the SPARC machine and click on ```upload.html``` link and upload the anything you want to.
 
 ![upload.1](media/upload.1.png)
 ![upload.2](media/upload.2.png)
 
-### 2.4 Sample run screenshots
+## 4. Sample run screenshots
 
 ![terminal.1](media/terminal.1.png)
 ![terminal.2](media/terminal.2.png)
