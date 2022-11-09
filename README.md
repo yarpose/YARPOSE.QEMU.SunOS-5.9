@@ -50,12 +50,12 @@ To run and invoke the system run this command.
 qemu-system-sparc -M SS-20 -m 256 -drive file=sparc.qcow2,bus=0,unit=0,media=disk
 ```
 ![Startup](media/startup.png)
-![Login](media/login.1.png)
-![Login](media/login.2.png)
-![Screen](media/screen.1.png)
-![Screen](media/screen.2.png)
-![Screen](media/screen.3.png)
-![Screen](media/screen.4.png)
+![Login.1](media/login.1.png)
+![Login.2](media/login.2.png)
+![Screen.1](media/screen.1.png)
+![Screen.2](media/screen.2.png)
+![Screen.3](media/screen.3.png)
+![Screen.4](media/screen.4.png)
 
 ## 3. Transfer files between host (your main machine) and guest (SPARC)
 First start ``` miniweb ```
